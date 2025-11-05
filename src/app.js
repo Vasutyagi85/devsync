@@ -13,10 +13,12 @@ app.use(cookieParser());//read cookies which is read by browser on every request
 const authRouter=require("./routes/auth");
 const profileRouter=require("./routes/profile");
 const requestRouter=require("./routes/request");
+const userRouter = require("./routes/user");
 
 app.use("/",authRouter);
 app.use("/",profileRouter);//if i fetch profile then it check auth does it contain/profile
 app.use("/",requestRouter);//same first auth if not theb profile then reqquest
+app.use("/",userRouter)
 
 
 connectDB().then(()=>{

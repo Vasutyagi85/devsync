@@ -54,6 +54,43 @@ requestRouter.post("/request/send/:status/:toUserId",userAuth,async(req,res)=>{
     console.log(req.user)
 })
 
+requestRouter.post("/request/review/:status/:requestId",userAuth,async(req,res)=>{//reqid is obj id in conn req
+    try{
+        const loggedInUser=req.user;
+        const {status,requestId}=req.params
+        //user must be loggedin
+        //connection req status must be interested then only we can accept or reject 
+        //only status are allowed accept or reject
+
+        const allowedStatus=["accepted","rejected"];
+        if(!allowedStatus.includes(status)){
+            return res.status(400).json({message:"status not allowed"});
+        }
+
+        const connectionRequest=await ConnectionRequest.findOne({//finding a connection in database which have sent a connection request to loggedin user
+            _id:requestId,
+            toUserId:loggedInUser._id,
+            status:"interested",
+        });
+        if(!connectionRequest){
+            return res.status(404).json({message:"Connection req not found"});
+        }
+        //if we found with above status and all then change the status from interested to acc or rej
+
+        connectionRequest.status=status;//accepted or rejected
+
+        const data=await connectionRequest.save();
+
+        res.json({message:
+        "connection"+ status,
+        data
+    });
+    }catch(err){
+        res.status(400).send("ERROR: "+ err.message)
+    }
+    const loggedInUser=req.user;
+});
+
 module.exports=requestRouter;
 
 

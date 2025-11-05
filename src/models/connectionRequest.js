@@ -1,16 +1,20 @@
 const mongoose=require("mongoose");
+const User = require("../models/user");
 
 const connectionRequestSchema=new mongoose.Schema({
     fromUserId:{
-        type:mongoose.Schema.Types.ObjectId
+        type:mongoose.Schema.Types.ObjectId,
+        required:true,
+        ref:User
     },
     toUserId:{
-        type:mongoose.Schema.Types.ObjectId
+        type:mongoose.Schema.Types.ObjectId,
+        required:true
     },
     status:{
         type:String,
         enum:{
-            values:["ignore","interested","accepted","rejcted"],
+            values:["ignore","interested","accepted","rejected"],
             message:`{value} is not a valid status type`
         },
     }
@@ -22,8 +26,9 @@ const connectionRequestSchema=new mongoose.Schema({
 
 connectionRequestSchema.index({fromUserId:1,toUserId:1});
 
+//database validation user cannot send a req to himself
 //it will be called everytime before connection req saved 
-connectionRequestSchema.pre("save",function(){//save is event handler
+connectionRequestSchema.pre("save",function(next){//save is event handler
     const connectionRequest=this;
 
     //check if the fromuserid is same as touserid
